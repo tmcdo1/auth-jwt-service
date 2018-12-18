@@ -1,0 +1,27 @@
+{
+  "name": "auth-jwt-service",
+  "version": "1.0.0",
+  "description": "A simple and customizable JWT authentication microservice that can be easily incorporated in existing or new projects",
+  "main": "index.js",
+  "scripts": {
+    "start": "nodemon index.js",
+    "prod": "node index.js",
+    "test": "standard --fix"
+  },
+  "author": "Thomas McDonald",
+  "license": "ISC",
+  "dependencies": {
+    "bcrypt": "^3.0.2",
+    "body-parser": "^1.18.3",
+    "dotenv": "^6.2.0",
+    "ejs": "^2.6.1",
+    "express": "^4.16.4",
+    "jsonwebtoken": "^8.4.0",
+    "passport": "^0.4.0",
+    "passport-jwt": "^4.0.0"
+  },
+  "devDependencies": {
+    "nodemon": "^1.18.7",
+    "standard": "^12.0.1"
+  }
+}
