@@ -41,7 +41,6 @@ Authentication requests will need to have token in body of POST request with a '
 
 ## User Schema
     {
-        _id: mongoose.Schema.Types.ObjectId,
         email: {
             type: String,
             unique: true,
