@@ -7,7 +7,7 @@ const bcrypt = require('bcrypt')
 const app = express()
 
 var { jwtStrategy, createToken } = require('./auth/jwt')
-var { getUser } = require('./auth/user')
+var { getUser, createUser } = require('./auth/user')
 
 passport.use(jwtStrategy)
 
@@ -43,12 +43,22 @@ app.post('/login', async (req, res) => {
 
 // Registers a new user
 app.post('/register', async (req, res) => {
-
+  let err = await createUser(req.body)
+  if (err) {
+    return res.json({ message: 'failed to create user' })
+  }
+  return res.json({ message: 'ok' })
 })
 
-// Verfies that token is valid
-app.post('/authenticate', (req, res) => {
+// Verfies that token is valid and returns the user information w/o password
+app.post('/authenticate', (req, res, next) => {
+  passport.authenticate('jwt', function (err, user, info) {
+    if (err) return next(err)
+    if (!user) return res.status(401).json({ message: 'invalid token' })
 
+    delete user.password
+    return res.json({ message: 'ok', user })
+  })(req, res, next)
 })
 
 // Change the password of current user
@@ -69,4 +79,4 @@ app.get('/resetpassword', (req, res) => {
 
 })
 
-app.listen(process.env.PORT, `Authentication Service is running on port ${process.env.PORT}`)
+app.listen(process.env.PORT, () => { console.log(`Authentication Service is running on port ${process.env.PORT}`) })

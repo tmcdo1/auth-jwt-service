@@ -3,7 +3,9 @@ const passportJWT = require('passport-jwt')
 const jwt = require('jsonwebtoken')
 const User = require('../models/user')
 
-mongoose.connect(`mongodb://${process.env.DB_HOST}:${process.env.DB_PORT}/Users`)
+const { databaseConnectionOptions, databaseConnectionError } = require('../config')
+
+mongoose.connect(`mongodb://${process.env.DB_HOST}:${process.env.DB_PORT}/Users`, databaseConnectionOptions, databaseConnectionError)
 
 var JwtStrategy = passportJWT.Strategy
 var ExtractJwt = passportJWT.ExtractJwt
@@ -32,10 +34,9 @@ var jwtStrategy = new JwtStrategy(jwtOptions, function (jwtPayload, next) {
 */
 function createToken (userId) {
   let payload = {
-    id: userId,
-    exp: process.env.TOKEN_EXPR
+    id: userId
   }
-  let token = jwt.sign(payload, process.env.TOKEN_SECRET)
+  let token = jwt.sign(payload, process.env.TOKEN_SECRET, { expiresIn: process.env.TOKEN_EXPR })
   return token
 }
 

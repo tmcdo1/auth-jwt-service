@@ -1,7 +1,9 @@
 const mongoose = require('mongoose')
 const User = require('../models/user')
 
-mongoose.connect(`mongodb://${process.env.DB_HOST}:${process.env.DB_PORT}/Users`)
+const { databaseConnectionOptions, databaseConnectionError } = require('../config')
+
+mongoose.connect(`mongodb://${process.env.DB_HOST}:${process.env.DB_PORT}/Users`, databaseConnectionOptions, databaseConnectionError)
 /*
 @param  {String}    email   the email for the user you want to get the object for
 @return {Object}    user    the user object for the user
