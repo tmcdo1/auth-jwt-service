@@ -37,11 +37,11 @@ async function createToken (userId) {
     id: userId
   }
   try {
-      let token = await jwt.sign(payload, process.env.TOKEN_SECRET, { expiresIn: process.env.TOKEN_EXPR })
-      return token
-  } catch(err) {
-      console.log('JWT ERROR:', err)
-      return null
+    let token = await jwt.sign(payload, process.env.TOKEN_SECRET, { expiresIn: process.env.TOKEN_EXPR })
+    return token
+  } catch (err) {
+    console.log('JWT ERROR:', err)
+    return null
   }
 }
 

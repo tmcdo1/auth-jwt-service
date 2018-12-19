@@ -35,8 +35,8 @@ app.post('/login', async (req, res) => {
 
   if (match) {
     const token = await createToken(user._id)
-    if(!token) {
-        return res.status(401).json({ message: 'failed creating token' })
+    if (!token) {
+      return res.status(401).json({ message: 'failed creating token' })
     }
     return res.json({ message: 'ok', token })
   } else {
@@ -86,10 +86,10 @@ app.get('/resetpassword', (req, res) => {
 
 app.listen(process.env.PORT, () => { console.log(`Authentication Service is running on port ${process.env.PORT}`) })
 
-function copyObjectNoPassword(obj) {
-    let newObj = {}
-    for(key in obj) {
-        newObj[key] = obj[key]
-    }
-    return newObj
+function copyObjectNoPassword (obj) {
+  let newObj = {}
+  for (let key in obj) {
+    newObj[key] = obj[key]
+  }
+  return newObj
 }
