@@ -8,6 +8,7 @@ NOTE: Passwords are hashed using bcrypt
 - Simple registration page
 - Password reset functionality
 - Uses MongoDB as datastore 
+- Encrypt everything in database (User collection/table) at rest
 
 ## Future Plans
 - Allow for interchangeable databases with just specifying an environment variable (currently only MongoDB will be supported out of the box)
