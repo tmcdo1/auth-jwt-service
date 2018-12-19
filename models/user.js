@@ -38,7 +38,7 @@ var UserSchema = new mongoose.Schema({
 
 // hash password before saving it to the database. TODO: Encrypt the all the data after hashing
 UserSchema.pre('save', function (next) {
-  var user = this
+  let user = this
   bcrypt.hash(user.password, 12, function (err, hash) {
     if (err) {
       return err
