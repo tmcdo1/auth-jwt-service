@@ -3,7 +3,7 @@ const User = require('../models/user')
 
 const { databaseConnectionOptions, databaseConnectionError } = require('../config')
 
-mongoose.connect(`mongodb://${process.env.DB_HOST}:${process.env.DB_PORT}/Users`, databaseConnectionOptions, databaseConnectionError)
+mongoose.connect(`mongodb://${process.env.DB_HOST}:${process.env.DB_PORT}/${process.env.DB_NAME}`, databaseConnectionOptions, databaseConnectionError)
 /*
 @param  {String}    email   the email for the user you want to get the object for
 @return {Object}    user    the user object for the user
@@ -24,6 +24,7 @@ async function getUser (email) {
 */
 async function createUser (body) {
   let newUserObject = {}
+
   // email
   if (body.email && body.email != null) newUserObject.email = body.email
   // password

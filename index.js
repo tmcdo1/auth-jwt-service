@@ -34,7 +34,10 @@ app.post('/login', async (req, res) => {
   const match = await bcrypt.compare(req.body.password, user.password)
 
   if (match) {
-    const token = createToken(user._id)
+    const token = await createToken(user._id)
+    if(!token) {
+        return res.status(401).json({ message: 'failed creating token' })
+    }
     return res.json({ message: 'ok', token })
   } else {
     return res.status(401).json({ message: 'password did not match' })
@@ -45,7 +48,7 @@ app.post('/login', async (req, res) => {
 app.post('/register', async (req, res) => {
   let err = await createUser(req.body)
   if (err) {
-    return res.json({ message: 'failed to create user' })
+    return res.json({ message: 'failed to create user', error: err })
   }
   return res.json({ message: 'ok' })
 })
@@ -56,8 +59,10 @@ app.post('/authenticate', (req, res, next) => {
     if (err) return next(err)
     if (!user) return res.status(401).json({ message: 'invalid token' })
 
-    delete user.password
-    return res.json({ message: 'ok', user })
+    let tempUser = copyObjectNoPassword(user.toObject())
+    delete tempUser.password
+
+    return res.json({ message: 'ok', user: tempUser })
   })(req, res, next)
 })
 
@@ -80,3 +85,11 @@ app.get('/resetpassword', (req, res) => {
 })
 
 app.listen(process.env.PORT, () => { console.log(`Authentication Service is running on port ${process.env.PORT}`) })
+
+function copyObjectNoPassword(obj) {
+    let newObj = {}
+    for(key in obj) {
+        newObj[key] = obj[key]
+    }
+    return newObj
+}

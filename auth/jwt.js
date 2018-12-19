@@ -5,7 +5,7 @@ const User = require('../models/user')
 
 const { databaseConnectionOptions, databaseConnectionError } = require('../config')
 
-mongoose.connect(`mongodb://${process.env.DB_HOST}:${process.env.DB_PORT}/Users`, databaseConnectionOptions, databaseConnectionError)
+mongoose.connect(`mongodb://${process.env.DB_HOST}:${process.env.DB_PORT}/${process.env.DB_NAME}`, databaseConnectionOptions, databaseConnectionError)
 
 var JwtStrategy = passportJWT.Strategy
 var ExtractJwt = passportJWT.ExtractJwt
@@ -32,12 +32,17 @@ var jwtStrategy = new JwtStrategy(jwtOptions, function (jwtPayload, next) {
 @param  {mongoose.Schema.Types.ObjectId}    userId  The _id of the user from the database
 @return {String}                            token   the signed JWT Token
 */
-function createToken (userId) {
+async function createToken (userId) {
   let payload = {
     id: userId
   }
-  let token = jwt.sign(payload, process.env.TOKEN_SECRET, { expiresIn: process.env.TOKEN_EXPR })
-  return token
+  try {
+      let token = await jwt.sign(payload, process.env.TOKEN_SECRET, { expiresIn: process.env.TOKEN_EXPR })
+      return token
+  } catch(err) {
+      console.log('JWT ERROR:', err)
+      return null
+  }
 }
 
 module.exports = {

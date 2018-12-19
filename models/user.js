@@ -2,7 +2,6 @@ const mongoose = require('mongoose')
 const bcrypt = require('bcrypt')
 
 var UserSchema = new mongoose.Schema({
-  _id: mongoose.Schema.Types.ObjectId,
   email: {
     type: String,
     unique: true,
