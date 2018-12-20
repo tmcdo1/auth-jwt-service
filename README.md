@@ -9,6 +9,7 @@ NOTE: Passwords are hashed using bcrypt
 - Password reset functionality
 - Delete account
 - Uses MongoDB as datastore 
+- Dockerfile and startup script
 
 ## Future Plans
 - Encrypt everything in database (User collection/table) at rest
