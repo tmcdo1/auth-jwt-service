@@ -7,7 +7,7 @@ const bcrypt = require('bcrypt')
 const app = express()
 
 var { jwtStrategy, createToken } = require('./auth/jwt')
-var { getUser, createUser } = require('./auth/user')
+var { getUser, createUser, forgotPassword, resetPassword, deleteAccount } = require('./auth/user')
 
 passport.use(jwtStrategy)
 
@@ -16,6 +16,21 @@ app.set('view engine', 'ejs')
 // Parse both application/x-www-form-urlencoded and application/json
 app.use(bodyParser.urlencoded({ extended: true }))
 app.use(bodyParser.json())
+
+app.use(passport.initialize())
+
+// Authenticate function
+function authenticate (req, res, next) {
+  passport.authenticate('jwt', function (err, user, info) {
+    if (err) return next(err)
+    if (!user) return res.status(401).json({ message: 'invalid token' })
+
+    let tempUser = copyObjectNoPassword(user.toObject())
+    delete tempUser.password
+    req.user = tempUser
+    next()
+  })(req, res, next)
+}
 
 /** **   API uses   ****/
 // Authenticates and returns token
@@ -54,21 +69,47 @@ app.post('/register', async (req, res) => {
 })
 
 // Verfies that token is valid and returns the user information w/o password
-app.post('/authenticate', (req, res, next) => {
-  passport.authenticate('jwt', function (err, user, info) {
-    if (err) return next(err)
-    if (!user) return res.status(401).json({ message: 'invalid token' })
+app.post('/authenticate', authenticate, (req, res) => {
+  res.json({ message: 'ok', user: req.user })
+})
 
-    let tempUser = copyObjectNoPassword(user.toObject())
-    delete tempUser.password
-
-    return res.json({ message: 'ok', user: tempUser })
-  })(req, res, next)
+// Initiate forgot password sequence
+app.post('/forgot', async (req, res) => {
+  if (!req.body.email || req.body.email == null) {
+    return res.json({ message: 'no email given' })
+  }
+  let err = await forgotPassword(req.body.email)
+  if (err) {
+    return res.json({ message: 'failed to send email', error: err })
+  }
+  res.json({ message: 'ok' })
 })
 
 // Change the password of current user
-app.post('/resetpassword', (req, res) => {
+app.post('/reset/:token', async (req, res) => {
+  if (!req.params.token || req.params.token == null || !req.body.password || req.body.password == null) {
+    return res.json({ message: 'no token or no password received' })
+  }
+  let err = await resetPassword(req.params.token, req.body.password)
+  if (err) {
+    return res.json({ message: 'failed to reset password', error: err })
+  }
+  res.json({ message: 'ok' })
+})
 
+app.delete('/delete-account', authenticate, async (req, res) => {
+  if (!req.body.email || req.body.email == null) {
+    return res.json({ message: 'no email given' })
+  }
+  if (req.body.email !== req.user.email) {
+    return res.status(401).json({ message: 'unauthorized to delete account' })
+  }
+  try {
+    await deleteAccount(req.body.email)
+    return res.json({ message: 'ok' })
+  } catch (err) {
+    return res.json({ message: 'unable to delete account', error: err })
+  }
 })
 
 /** **   Optional Page uses   ****/
@@ -80,7 +121,11 @@ app.get('/register', (req, res) => {
 
 })
 
-app.get('/resetpassword', (req, res) => {
+app.get('/forgot', (req, res) => {
+
+})
+
+app.get('/reset/:token', (req, res) => {
 
 })
 

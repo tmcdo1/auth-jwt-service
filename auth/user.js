@@ -1,5 +1,7 @@
 const mongoose = require('mongoose')
+const crypto = require('crypto')
 const User = require('../models/user')
+const { smtpTransport, passwordResetEmail } = require('../config')
 
 const { databaseConnectionOptions, databaseConnectionError } = require('../config')
 
@@ -9,8 +11,8 @@ mongoose.connect(`mongodb://${process.env.DB_HOST}:${process.env.DB_PORT}/${proc
 @return {Object}    user    the user object for the user
 */
 async function getUser (email) {
-  let userQuery = User.findOne({ email })
   try {
+    let userQuery = User.findOne({ email })
     let user = await userQuery.exec()
     return user
   } catch (err) {
@@ -47,7 +49,81 @@ async function createUser (body) {
   }
 }
 
+async function forgotPassword (email) {
+  try {
+    // Create a token using crypto
+    const token = crypto.randomBytes(20).toString('hex')
+
+    // Find user with given email address and set token and expiration
+    let user = await getUser(email)
+    if (!user) throw Error('user not found')
+
+    user.passwordResetToken = token
+    user.passwordResetExpires = Date.now() + 60 * 60 * 1000 // 1 hour expiration
+
+    await user.save()
+    // Email custom link with token to email
+    let mailOptions = {
+      to: user.email,
+      from: passwordResetEmail,
+      subject: 'Password Reset',
+      text: `
+                You are receiving this email because a password reset has been requested on your account.
+                If this was you, please click the following link or paste it into your browser:
+                Link: ${process.env.HOST || 'http://localhost'}${process.env.PORT ? ':' : ''}${process.env.PORT}${process.env.AUTH_PATH}reset/${token} \n
+                If this was not you, ignore this email and your password will remain unchanged.
+            `
+    }
+
+    await smtpTransport.sendMail(mailOptions)
+
+    return null
+  } catch (err) {
+    return { message: err.toString() }
+  }
+}
+
+async function resetPassword (token, password) {
+  try {
+    // Find user with given reset token
+    let userQuery = User.findOne({ passwordResetToken: token, passwordResetExpires: { $gt: Date.now() } })
+    let user = await userQuery.exec()
+    if (!user) {
+      throw Error('user not found')
+    }
+
+    // Reset token and expiration and set new password
+    user.password = password
+    user.passwordResetToken = undefined
+    user.passwordResetExpires = undefined
+
+    await user.save()
+
+    // send confirmation email
+    let mailOptions = {
+      to: user.email,
+      from: passwordResetEmail,
+      subject: 'Password Reset Successful',
+      text: `
+                  Your password has been successfully changed.
+              `
+    }
+
+    await smtpTransport.sendMail(mailOptions)
+    return null
+  } catch (err) {
+    return err
+  }
+}
+
+async function deleteAccount (email) {
+  await User.deleteOne({ email }).exec()
+}
+
 module.exports = {
   getUser,
-  createUser
+  createUser,
+  forgotPassword,
+  resetPassword,
+  deleteAccount
 }

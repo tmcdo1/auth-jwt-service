@@ -10,7 +10,6 @@ var UserSchema = new mongoose.Schema({
   },
   username: {
     type: String,
-    unique: true,
     required: false,
     trim: true
   },
@@ -32,7 +31,9 @@ var UserSchema = new mongoose.Schema({
     type: Date,
     required: false,
     default: Date.now
-  }
+  },
+  passwordResetToken: String,
+  passwordResetExpires: Date
 })
 
 // hash password before saving it to the database. TODO: Encrypt the all the data after hashing
