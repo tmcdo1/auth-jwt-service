@@ -128,7 +128,7 @@ The `config.js` contains some necessary/optional configurations so that you will
     // Used to send emails for password reset
     var smtpTransport = nodemailer.createTransport({
         host: 'smtp.sendgrid.net', // change host to your email or SMTP host
-        port: 587, // SMTP port
+        port: 587, // unsecure SMTP port for SendGrid. Change to the proper port for your service
         secure: false, // Change if sending securely
         auth: {
             user: process.env.EMAIL_USER,
