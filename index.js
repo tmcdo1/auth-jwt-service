@@ -4,14 +4,13 @@ const express = require('express')
 const bodyParser = require('body-parser')
 const passport = require('passport')
 const bcrypt = require('bcrypt')
+const path = require('path')
 const app = express()
 
 var { jwtStrategy, createToken } = require('./auth/jwt')
 var { getUser, createUser, forgotPassword, resetPassword, deleteAccount } = require('./auth/user')
 
 passport.use(jwtStrategy)
-
-app.set('view engine', 'ejs')
 
 // Parse both application/x-www-form-urlencoded and application/json
 app.use(bodyParser.urlencoded({ extended: true }))
@@ -61,6 +60,7 @@ app.post('/login', async (req, res) => {
 
 // Registers a new user
 app.post('/register', async (req, res) => {
+  // console.log(req.headers)
   let err = await createUser(req.body)
   if (err) {
     return res.json({ message: 'failed to create user', error: err })
@@ -113,20 +113,24 @@ app.delete('/delete-account', authenticate, async (req, res) => {
 })
 
 /** **   Optional Page uses   ****/
-app.get('/login', (req, res) => {
+app.get('/main.css', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public/css/main.css'))
+})
 
+app.get('/login', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public/login/login.html'))
 })
 
 app.get('/register', (req, res) => {
-
+  res.sendFile(path.join(__dirname, 'public/register/register.html'))
 })
 
 app.get('/forgot', (req, res) => {
-
+  res.sendFile(path.join(__dirname, 'public/password_reset/forgot.html'))
 })
 
 app.get('/reset/:token', (req, res) => {
-
+  res.sendFile(path.join(__dirname, 'public/password_reset/reset.html'))
 })
 
 app.listen(process.env.PORT, () => { console.log(`Authentication Service is running on port ${process.env.PORT}`) })

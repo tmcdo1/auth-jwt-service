@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Password Reset</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" media="screen" href="../css/main.css" />
+    <link rel="stylesheet" type="text/css" media="screen" href="main.css" />
+    <script src="main.js"></script>
+</head>
+<body>
+    <form id="reset" class="card form" action="" method="post" onsubmit="return verifyPassword()">
+        <div class='form-title'>Reset Password</div>
+        <div class='flex'>
+            <label for="password">Password: </label>
+            <input id="password" name="password" type="password" placeholder="Enter Password" required>
+        </div>
+        <div class='flex'>
+            <label for="confirmPassword">Confirm Password: </label>
+            <input id="confirmPassword" name="confirmPassword" type="password" placeholder="Confirm Password" required>
+        </div>
+        <input type="submit" value="Log In">
+    </form>
+    <script>
+        function verifyPassword() {
+            console.log('verifying', document.getElementById('password').value)
+            if(document.getElementById('password').value === document.getElementById('confirmPassword').value) {
+                return true
+            } else {
+                alert('Passwords must match')
+                return false
+            }
+        }
+    </script>
+    <script>
+        document.getElementById('reset').action = window.location.href
+    </script>
+</body>
+</html>

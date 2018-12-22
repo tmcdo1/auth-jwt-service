@@ -1,0 +1,80 @@
+html {
+    height: 100%;
+    background: linear-gradient(tan, white);
+}
+
+body {
+    margin: 0;
+    padding: 0;
+}
+
+.card {
+    padding: 12px;
+    -webkit-box-shadow: 0 3px 6px rgba(0,0,0,0.16), 0 10px 10px rgba(0,0,0,0.22);
+    -moz-box-shadow: 0 3px 6px rgba(0,0,0,0.16), 0 10px 10px rgba(0,0,0,0.22);
+    box-shadow: 0 3px 6px rgba(0,0,0,0.16), 0 10px 10px rgba(0,0,0,0.22);
+    border-radius: 2px;
+}
+
+input {
+    display: inline-block;
+}
+
+.flex {
+    display: flex;
+}
+
+.flex > label {
+    flex-grow: 0;
+    flex-basis: 24%;
+}
+
+.flex > input {
+    flex-grow: 1;
+    flex-basis: 25%;
+}
+
+.form-title {
+    text-align: center;
+    font-size: 1.2em;
+}
+
+.form {
+    background: white;
+    width: 25vw;
+    min-width: 150px;
+    margin-top: 20vh;
+    margin-left: auto;
+    margin-right: auto;
+    padding: 12px;
+}
+
+.form > * {
+    margin: 8px;
+}
+
+@media only screen and (max-width: 1270px) {
+    .flex {
+        flex-direction: column;
+    }
+
+    .flex > label {
+        flex-grow: 0;
+    }
+    
+    .flex > input {
+        flex-grow: 0;
+    }
+}
+
+.success-background {
+    padding: 8px;
+    border-radius: 4px;
+    background: rgba(74, 197, 74, .5);
+}
+
+.failure-background {
+    padding: 8px;
+    border-radius: 4px;
+    background: rgba(255, 79, 79, .5);
+}

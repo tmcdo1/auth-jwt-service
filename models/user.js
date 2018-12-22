@@ -1,7 +1,10 @@
 const mongoose = require('mongoose')
 const bcrypt = require('bcrypt')
 
+mongoose.set('useCreateIndex', true);
+
 var UserSchema = new mongoose.Schema({
+  _id: String,
   email: {
     type: String,
     unique: true,

@@ -1,5 +1,6 @@
 const mongoose = require('mongoose')
 const crypto = require('crypto')
+const uuidv4 = require('uuid/v4')
 const User = require('../models/user')
 const { smtpTransport, passwordResetEmail } = require('../config')
 
@@ -26,6 +27,8 @@ async function getUser (email) {
 */
 async function createUser (body) {
   let newUserObject = {}
+
+  newUserObject._id = uuidv4()
 
   // email
   if (body.email && body.email != null) newUserObject.email = body.email
@@ -70,7 +73,7 @@ async function forgotPassword (email) {
       text: `
                 You are receiving this email because a password reset has been requested on your account.
                 If this was you, please click the following link or paste it into your browser:
-                Link: ${process.env.HOST || 'http://localhost'}${process.env.PORT ? ':' : ''}${process.env.PORT}${process.env.AUTH_PATH}reset/${token} \n
+                Link: ${process.env.HOST || 'http://localhost'}${process.env.PORT ? ':' : ''}${process.env.PORT}${process.env.AUTH_PATH}${process.env.AUTH_PATH.endsWith('/') ? '' : '/'}reset/${token} \n
                 If this was not you, ignore this email and your password will remain unchanged.
             `
     }

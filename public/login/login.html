@@ -5,20 +5,25 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <title>Log In</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" type="text/css" media="screen" href="./main.css" />
+    <link rel="stylesheet" type="text/css" media="screen" href="../css/main.css" />
+    <link rel="stylesheet" type="text/css" media="screen" href="main.css" />
     <script src="main.js"></script>
 </head>
 <body>
-    <form id="login" class="card" action="/login" method="post">
-        <div>
+    <form id="login" class="card form" action="" method="post">
+        <div class='form-title'>Login</div>
+        <div class='flex'>
             <label for="email">Email: </label>
             <input name="email" type="email" placeholder="Enter Email" required>
         </div>
-        <div>
+        <div class='flex'>
             <label for="password">Password: </label>
             <input name="password" type="password" placeholder="Enter Password" required>
         </div>
         <input type="submit" value="Log In">
     </form>
+    <script>
+        document.getElementById('login').action = window.location.href
+    </script>
 </body>
 </html>
