@@ -36,7 +36,11 @@ var UserSchema = new mongoose.Schema({
     default: Date.now
   },
   passwordResetToken: String,
-  passwordResetExpires: Date
+  passwordResetExpires: Date,
+  verified: {
+    type: Boolean,
+    default: false
+  }
 })
 
 // hash password before saving it to the database. TODO: Encrypt the all the data after hashing

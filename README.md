@@ -1,22 +1,22 @@
-# Simple AUTH Microservice (WIP)
-The purpose of this project is to have an easily usable authentication microservice that one could "plug and play" into their existing API or gateway. This project will be 100% working out of the box (currently in development). However, it is also meant to be a starting point for those who want a more customized authentication service. The microservice is also meant to be used how you would like it to be used, meaning certain pages (login, register, password reset) will be provided but are by no means required to be used. If you would like to customize the pages or use another service for the pages, it is encouraged.
+# Simple AUTH Microservice
+The purpose of this project is to have an easily usable authentication microservice that one could "plug and play" into their existing API or gateway. This project is be 100% working out of the box. However, it is also meant to be a starting point for those who want a more customized authentication service. The microservice is also meant to be used how you would like it to be used, meaning certain pages (login, register, password reset) are provided but are by no means required to be used. If you would like to customize the pages or use another service for the pages, it is encouraged.
 
 NOTE: Passwords are hashed using bcrypt
 
-## Currently Planned Features
+## Current Features
 - Simple login page
 - Simple registration page
 - Password reset functionality
 - Delete account
 - Uses MongoDB as datastore 
-- Dockerfile and startup script
+- Dockerfile and Docker-Compose configuration
 
 ## Future Plans
 - Encrypt everything in database (User collection/table) at rest
 - Allow for interchangeable databases with just specifying an environment variable (currently only MongoDB will be supported out of the box)
 - Add more security features to prevent against spamming (brute-force) and DOS attacks
-- Optional features to have a stateful service that will allow "logout" functionality, even with token expiration
 - Verify email
+- Flags for using sessions, cookies, and bearer tokens
 
 ## API 
 
@@ -172,5 +172,9 @@ The `config.js` contains some necessary/optional configurations so that you will
             default: Date.now
         },
         passwordResetToken: String,
-        passwordResetExpires: Date
+        passwordResetExpires: Date,
+        verified: {
+            type: Boolean,
+            default: false
+        }
     }

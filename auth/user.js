@@ -46,6 +46,9 @@ async function createUser (body) {
   const newUser = new User(newUserObject)
   try {
     await newUser.save()
+
+    // Send verification email
+    
     return null
   } catch (err) {
     return err
