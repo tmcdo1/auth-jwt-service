@@ -5,9 +5,8 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <title>Register</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" type="text/css" media="screen" href="../css/main.css" />
     <link rel="stylesheet" type="text/css" media="screen" href="main.css" />
-    <script src="main.js"></script>
+    <link rel="stylesheet" type="text/css" media="screen" href="../css/main.css" />
 </head>
 <body>
     <form id="register" class="card form" action="" method="" onsubmit="return verifyPassword()">
@@ -34,6 +33,9 @@
         </div>
         <input type="submit" value="Register">
 
+        <label class='name' for='name'>Please do not fill out the name field.</label>
+        <input class='name' name='name' type="text" placeholder="Name">
+
         <div id='result'></div>
     </form>
 
@@ -44,7 +46,7 @@
             let formData = new FormData(document.getElementById('register'))
 
             for (const pair of formData) {
-                data.append(pair[0], pair[1]);
+                data.append(pair[0], pair[1])
             }
 
 

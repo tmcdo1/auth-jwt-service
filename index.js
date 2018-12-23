@@ -8,7 +8,7 @@ const path = require('path')
 const app = express()
 
 var { jwtStrategy, createToken } = require('./auth/jwt')
-var { getUser, createUser, forgotPassword, resetPassword, deleteAccount } = require('./auth/user')
+var { getUser, createUser, forgotPassword, resetPassword, resetTokenValid, deleteAccount } = require('./auth/user')
 
 passport.use(jwtStrategy)
 
@@ -29,6 +29,15 @@ function authenticate (req, res, next) {
     req.user = tempUser
     next()
   })(req, res, next)
+}
+
+function checkHoneyPot (req, res, next) {
+  // check for bots with honeypot field
+  if (req.body.name && req.body.name !== '') {
+    return res.json({ message: 'failed to submit form' })
+  } else {
+    next()
+  }
 }
 
 /** **   API uses   ****/
@@ -52,6 +61,7 @@ app.post('/login', async (req, res) => {
     if (!token) {
       return res.status(401).json({ message: 'failed creating token' })
     }
+    // change to a res.redirect if you would like to redirect on successful login
     return res.json({ message: 'ok', token })
   } else {
     return res.status(401).json({ message: 'password did not match' })
@@ -59,12 +69,12 @@ app.post('/login', async (req, res) => {
 })
 
 // Registers a new user
-app.post('/register', async (req, res) => {
-  // console.log(req.headers)
+app.post('/register', checkHoneyPot, async (req, res) => {
   let err = await createUser(req.body)
   if (err) {
     return res.json({ message: 'failed to create user', error: err })
   }
+  // change to a res.redirect if you would like to redirect on successful registration
   return res.json({ message: 'ok' })
 })
 
@@ -74,7 +84,7 @@ app.post('/authenticate', authenticate, (req, res) => {
 })
 
 // Initiate forgot password sequence
-app.post('/forgot', async (req, res) => {
+app.post('/forgot', checkHoneyPot, async (req, res) => {
   if (!req.body.email || req.body.email == null) {
     return res.json({ message: 'no email given' })
   }
@@ -86,7 +96,7 @@ app.post('/forgot', async (req, res) => {
 })
 
 // Change the password of current user
-app.post('/reset/:token', async (req, res) => {
+app.post('/reset/:token', checkHoneyPot, async (req, res) => {
   if (!req.params.token || req.params.token == null || !req.body.password || req.body.password == null) {
     return res.json({ message: 'no token or no password received' })
   }
@@ -129,7 +139,10 @@ app.get('/forgot', (req, res) => {
   res.sendFile(path.join(__dirname, 'public/password_reset/forgot.html'))
 })
 
-app.get('/reset/:token', (req, res) => {
+app.get('/reset/:token', async (req, res) => {
+  if (!(await resetTokenValid(req.params.token))) {
+    return res.send('Reset page has expired')
+  }
   res.sendFile(path.join(__dirname, 'public/password_reset/reset.html'))
 })
 

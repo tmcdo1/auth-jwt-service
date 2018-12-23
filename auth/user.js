@@ -86,6 +86,21 @@ async function forgotPassword (email) {
   }
 }
 
+async function resetTokenValid (token) {
+  try {
+    // Find user with given reset token
+    let userQuery = User.findOne({ passwordResetToken: token, passwordResetExpires: { $gt: Date.now() } })
+    let user = await userQuery.exec()
+    if (!user) {
+      throw Error('user not found')
+    } else {
+      return true
+    }
+  } catch (err) {
+    return false
+  }
+}
+
 async function resetPassword (token, password) {
   try {
     // Find user with given reset token
@@ -128,5 +143,6 @@ module.exports = {
   createUser,
   forgotPassword,
   resetPassword,
+  resetTokenValid,
   deleteAccount
 }

@@ -5,9 +5,8 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <title>Log In</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" type="text/css" media="screen" href="../css/main.css" />
     <link rel="stylesheet" type="text/css" media="screen" href="main.css" />
-    <script src="main.js"></script>
+    <link rel="stylesheet" type="text/css" media="screen" href="../css/main.css" />
 </head>
 <body>
     <form id="login" class="card form" action="" method="post">
@@ -21,6 +20,9 @@
             <input name="password" type="password" placeholder="Enter Password" required>
         </div>
         <input type="submit" value="Log In">
+
+        <label class='name' for=>Please do not fill out the name field.</label>
+        <input class='name' name='name' type="text">
     </form>
     <script>
         document.getElementById('login').action = window.location.href

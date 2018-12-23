@@ -5,12 +5,11 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <title>Password Reset</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" media="screen" href="../main.css" />
     <link rel="stylesheet" type="text/css" media="screen" href="../css/main.css" />
-    <link rel="stylesheet" type="text/css" media="screen" href="main.css" />
-    <script src="main.js"></script>
 </head>
 <body>
-    <form id="reset" class="card form" action="" method="post" onsubmit="return verifyPassword()">
+    <form id="reset" class="card form" action="" method="" onsubmit="return verify()">
         <div class='form-title'>Reset Password</div>
         <div class='flex'>
             <label for="password">Password: </label>
@@ -21,16 +20,53 @@
             <input id="confirmPassword" name="confirmPassword" type="password" placeholder="Confirm Password" required>
         </div>
         <input type="submit" value="Log In">
+
+        <label class='name' for='name'>Please do not fill out the name field.</label>
+        <input class='name' name='name' type="text" placeholder="Name">
+
+        <div id='result'></div>
     </form>
     <script>
-        function verifyPassword() {
-            console.log('verifying', document.getElementById('password').value)
+        function verify() {
+
+            let data = new URLSearchParams()
+            let formData = new FormData(document.getElementById('reset'))
+
+            for (const pair of formData) {
+                data.append(pair[0], pair[1])
+            }
+
             if(document.getElementById('password').value === document.getElementById('confirmPassword').value) {
-                return true
+                fetch(window.location.href, {
+                    method: "POST", // *GET, POST, PUT, DELETE, etc.
+                    // mode: "cors", // no-cors, cors, *same-origin
+                    // cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
+                    // credentials: "same-origin", // include, *same-origin, omit
+                    headers: {
+                        // "Content-Type": "application/json",
+                        "Content-Type": "application/x-www-form-urlencoded",
+                    },
+                    redirect: "follow", // manual, *follow, error
+                    referrer: "no-referrer", // no-referrer, *client
+                    body: data
+                })
+                .then(response => response.json()).then(json => {
+                    let resultElem = document.getElementById('result')
+                    if(json.message && json.message === 'ok') {
+                        resultElem.classList.add('success-background')
+                        resultElem.classList.remove('failure-background')
+                        resultElem.textContent = 'Password has been reset'
+                    } else {
+                        resultElem.classList.add('failure-background')
+                        resultElem.classList.remove('success-background')    
+                        resultElem.textContent = 'Failed to reset password'
+                    }
+                }) 
             } else {
                 alert('Passwords must match')
-                return false
             }
+
+            return false
         }
     </script>
     <script>

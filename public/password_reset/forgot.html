@@ -5,12 +5,11 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <title>Forgot Password</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" type="text/css" media="screen" href="../css/main.css" />
     <link rel="stylesheet" type="text/css" media="screen" href="main.css" />
-    <script src="main.js"></script>
+    <link rel="stylesheet" type="text/css" media="screen" href="../css/main.css" />
 </head>
 <body>
-    <form id="forgot" class="card form" action="" method="post">
+    <form id="forgot" class="card form" action="" method="" onsubmit="return verify()">
         <div class='form-title'>Forgot Password</div>
         <div class='flex'>
             <label for="email">Email: </label>
@@ -18,9 +17,53 @@
         </div>
         
         <input type="submit" value="Send Reset Email">
+
+        <label class='name' for='name'>Please do not fill out the name field.</label>
+        <input class='name' name='name' type="text" placeholder="Name">
+
+        <div id='result'></div>
     </form>
     <script>
-        document.getElementById('forgot').action = window.location.href
+        function verify() {
+            let data = new URLSearchParams()
+            let formData = new FormData(document.getElementById('forgot'))
+
+            for (const pair of formData) {
+                data.append(pair[0], pair[1])
+            }
+
+            document.getElementById('result').classList.add('neutral-background', 'loading')
+            document.getElementById('result').classList.remove('failure-background', 'success-background')
+            document.getElementById('result').innerHTML = 'Working on sending email<span>.</span><span>.</span><span>.</span>'
+
+            fetch(window.location.href, {
+                method: "POST", // *GET, POST, PUT, DELETE, etc.
+                // mode: "cors", // no-cors, cors, *same-origin
+                // cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
+                // credentials: "same-origin", // include, *same-origin, omit
+                headers: {
+                    // "Content-Type": "application/json",
+                    "Content-Type": "application/x-www-form-urlencoded",
+                },
+                redirect: "follow", // manual, *follow, error
+                referrer: "no-referrer", // no-referrer, *client
+                body: data
+            })
+            .then(response => response.json()).then(json => {
+                console.log(json)
+                let resultElem = document.getElementById('result')
+                if(json.message && json.message === 'ok') {
+                    resultElem.classList.add('success-background')
+                    resultElem.classList.remove('neutral-background', 'loading', 'failure-background')
+                    resultElem.textContent = 'Email sent'
+                } else {
+                    resultElem.classList.add('failure-background')
+                    resultElem.classList.remove('neutral-background', 'loading', 'success-background')  
+                    resultElem.textContent = 'Failed to send password reset email'
+                }
+            }) 
+            return false;
+        }
     </script>
 </body>
 </html>
