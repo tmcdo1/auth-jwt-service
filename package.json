@@ -1,6 +1,6 @@
 {
   "name": "auth-jwt-service",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "A simple and customizable JWT authentication microservice that can be easily incorporated in existing or new projects",
   "main": "index.js",
   "scripts": {
@@ -9,10 +9,12 @@
     "test": "standard --fix"
   },
   "author": "Thomas McDonald",
-  "license": "ISC",
+  "license": "MIT",
   "dependencies": {
     "bcrypt": "^3.0.2",
     "body-parser": "^1.18.3",
+    "commander": "^2.19.0",
+    "cookie-parser": "^1.4.3",
     "dotenv": "^6.2.0",
     "express": "^4.16.4",
     "handlebars": "^4.0.12",

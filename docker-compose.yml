@@ -6,6 +6,8 @@ services:
     - "3000:3000"
     depends_on:
     - mongo
+    environment:
+    - DB_HOST=mongo
   mongo:
     image: mongo
     ports:

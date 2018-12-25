@@ -2,21 +2,44 @@ require('dotenv').config()
 
 const express = require('express')
 const bodyParser = require('body-parser')
+const cookieParser = require('cookie-parser')
 const passport = require('passport')
 const bcrypt = require('bcrypt')
 const path = require('path')
+var program = require('commander')
 const app = express()
 
-var { jwtStrategy, createToken } = require('./auth/jwt')
+var { createToken, createStrategy, extractOptions } = require('./auth/jwt')
 var { getUser, createUser, forgotPassword, resetPassword, resetTokenValid, deleteAccount } = require('./auth/user')
+var { cookieOptions } = require('./config')
 
+// Parse flags
+program
+  .option('-c, --cookies', 'Use cookies with token')
+  .option('-e, --email-verification', 'Send email on user registration for verification')
+  .option('-b, --bearer-token', 'Use bearer tokens in Authorization header')
+  .option('-s, --sessions', 'Use stored user sessions')
+  .parse(process.argv);
+
+// Determine which extraction method to use
+var jwtStrategy = createStrategy()
+if(program.cookies) {
+  jwtStrategy = createStrategy(extractOptions.cookie())
+} else if(program.bearerToken) {
+  jwtStrategy = createStrategy(extractOptions.bearer())
+} 
 passport.use(jwtStrategy)
 
 // Parse both application/x-www-form-urlencoded and application/json
 app.use(bodyParser.urlencoded({ extended: true }))
 app.use(bodyParser.json())
 
+if(program.cookies) {
+  app.use(cookieParser(process.env.COOKIE_SECRET))
+}
+
 app.use(passport.initialize())
+
 
 // Authenticate function
 function authenticate (req, res, next) {
@@ -61,8 +84,20 @@ app.post('/login', async (req, res) => {
     if (!token) {
       return res.status(401).json({ message: 'failed creating token' })
     }
-    // change to a res.redirect if you would like to redirect on successful login
-    return res.json({ message: 'ok', token })
+
+    let tempUser = copyObjectNoPassword(user.toObject())
+    delete tempUser.password
+
+    // Set cookie for client if flag exists
+    if(program.cookies) {
+      if(req.signedCookies.user) {
+        res.clearCookie('user', cookieOptions)
+      }
+      res.cookie('user', token, cookieOptions)
+    }
+
+    // Change to redirect here if you would like to redirect to a page on login
+    return res.json({ message: 'ok', token, user: tempUser })
   } else {
     return res.status(401).json({ message: 'password did not match' })
   }
@@ -107,6 +142,13 @@ app.post('/reset/:token', checkHoneyPot, async (req, res) => {
   res.json({ message: 'ok' })
 })
 
+app.post('/logout', authenticate, (req, res) => {
+  if(program.cookies && req.signedCookies.user) {
+    res.clearCookie('user', cookieOptions)
+  }
+  res.json({ message: 'ok' })
+})
+
 app.delete('/delete-account', authenticate, async (req, res) => {
   if (!req.body.email || req.body.email == null) {
     return res.json({ message: 'no email given' })
@@ -114,6 +156,11 @@ app.delete('/delete-account', authenticate, async (req, res) => {
   if (req.body.email !== req.user.email) {
     return res.status(401).json({ message: 'unauthorized to delete account' })
   }
+
+  if(program.cookies && req.signedCookies.user) {
+    res.clearCookie('user', cookieOptions)
+  }
+
   try {
     await deleteAccount(req.body.email)
     return res.json({ message: 'ok' })

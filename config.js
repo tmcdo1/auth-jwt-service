@@ -25,9 +25,17 @@ var smtpTransport = nodemailer.createTransport({
 
 var passwordResetEmail = 'noreply@passwordreset.com'
 
+// Only used when the '-c' (enable cookie use) is passed on service startup 
+var cookieOptions = { 
+  signed: true, 
+  maxAge: process.env.COOKIE_EXPR, 
+  httpOnly: true 
+}
+
 module.exports = {
   databaseConnectionOptions,
   databaseConnectionError,
   smtpTransport,
-  passwordResetEmail
+  passwordResetEmail,
+  cookieOptions
 }

@@ -10,23 +10,45 @@ mongoose.connect(`mongodb://${process.env.DB_HOST}:${process.env.DB_PORT}/${proc
 var JwtStrategy = passportJWT.Strategy
 var ExtractJwt = passportJWT.ExtractJwt
 
-var jwtOptions = {
-  jwtFromRequest: ExtractJwt.fromBodyField('jwtToken'),
-  secretOrKey: process.env.TOKEN_SECRET
+// Custom Cookie Extraction function. Based on sample from http://www.passportjs.org/packages/passport-jwt/#extracting-the-jwt-from-the-request
+var cookieExtractor = function(req) {
+  var token = null
+  if (req && req.signedCookies) {
+      token = req.signedCookies.user
+  }
+  return token
+};
+
+const extractOptions = {
+  body: () => { return ExtractJwt.fromBodyField('jwtToken') },
+  bearer: () => { return ExtractJwt.fromAuthHeaderAsBearerToken() },
+  cookie: () => { return cookieExtractor },
+  authHeader: () => { return ExtractJwt.fromAuthHeader() },
+  authHeaderWithScheme: (auth_scheme) => { return ExtractJwt.fromAuthHeaderWithScheme(auth_scheme) }
 }
 
-var jwtStrategy = new JwtStrategy(jwtOptions, function (jwtPayload, next) {
-  User.findById(jwtPayload.id, (err, user) => {
-    if (err) {
-      return next(err, false)
-    }
-    if (user) {
-      return next(null, user)
-    } else {
-      return next(null, false)
-    }
+function createStrategy(option=extractOptions.body()) {
+
+  let jwtOptions = {
+    jwtFromRequest: option,
+    secretOrKey: process.env.TOKEN_SECRET
+  }
+
+  let jwtStrategy = new JwtStrategy(jwtOptions, function (jwtPayload, next) {
+    User.findById(jwtPayload.id, (err, user) => {
+      if (err) {
+        return next(err, false)
+      }
+      if (user) {
+        return next(null, user)
+      } else {
+        return next(null, false)
+      }
+    })
   })
-})
+
+  return jwtStrategy
+}
 
 /*
 @param  {mongoose.Schema.Types.ObjectId}    userId  The _id of the user from the database
@@ -46,6 +68,7 @@ async function createToken (userId) {
 }
 
 module.exports = {
-  jwtStrategy,
-  createToken
+  createToken,
+  createStrategy,
+  extractOptions
 }
