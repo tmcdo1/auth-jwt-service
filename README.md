@@ -32,6 +32,15 @@ Accepts: application/x-www-form-urlencoded, application/json
 - (optional) `lastname`: String
 - (optional) `username`: String (a non-unique username)
 
+Example request:
+```
+{
+    "email": "john@smith.com",
+    "password": "password",
+    "username": "jsmith192"
+}
+```
+
 Returns: application/json
 - `message`: String (`ok` if everything went alright)
 - `error`: (only included when error occurred)
@@ -44,6 +53,7 @@ Accepts: application/x-www-form-urlencoded, application/json
 Returns: application/json
 - `message`: String (`ok` if everything went alright)
 - `token`: String (Only included when login is successful)
+- `user`: an object representing the logged in user
 
 Example response:
 ```
@@ -89,6 +99,9 @@ Returns: application/json
 
 
 ## Customization/Configuration
+There are a couple locations where you are able to easily change some of the configurations. The `.env` file contains environment variables that pertain to service configurations and private data. You should modify the variables to your uses.
+
+Currently, the email information is only used for password reset related functionality. However, an optional feature to send a verification email will also be using the email information in a future release. As you might notice, email credentials are in the `.env` file and email service configuration is in the `config.js` file. You can find the SMTP information on your providers site or here: https://www.arclab.com/en/kb/email/list-of-smtp-and-pop3-servers-mailserver-list.html
 
 ### .env
     # All variables defined here will not overwrite variables currently defined in environment
@@ -102,13 +115,18 @@ Returns: application/json
     TOKEN_EXPR='2d' # Token Expiration Length. Eg: 60, "2 days", "10h", "7d". A numeric value is interpreted as a seconds count. 
                     # If you use a string be sure you provide the time units (days, hours, etc), otherwise milliseconds unit is used by default ("120" is equal to "120ms").
 
+    COOKIE_SECRET='secret'
+    COOKIE_EXPR=172800000 # The number of milliseconds that the cookie should last. Unlike the TOKEN_EXPR variable, this must be a number. It is currently set to 2 days
+
     EMAIL_USER='username' # the username for the SMTP/email account you are using for password reset
     EMAIL_PASS='password' # password for the account mentioned above
 
     # Database
-    DB_HOST='localhost'
+    DB_HOST='mongo'
     DB_PORT=27017
     DB_NAME='JWTService'
+
+> It is recommended that the `TOKEN_EXPR` and the `COOKIE_EXPR` are set for the same time period.
 
 ### config.js
 The `config.js` contains some necessary/optional configurations so that you will not have to go digging through the code to fix some things. You might still want to go digging to customize as you see fit.
@@ -137,6 +155,13 @@ The `config.js` contains some necessary/optional configurations so that you will
     })
 
     var passwordResetEmail = 'noreply@passwordreset.com' // Your 'from' email for password reset
+
+    // Only used when the '-c' (enable cookie use) is passed on service startup 
+    var cookieOptions = { 
+        signed: true, 
+        maxAge: process.env.COOKIE_EXPR, 
+        httpOnly: true 
+    }
 
 ## User Schema
     {
@@ -178,3 +203,38 @@ The `config.js` contains some necessary/optional configurations so that you will
             default: false
         }
     }
+
+## Getting Started
+Getting started is quite simple using the following steps:
+
+Clone the repository to your desired location:
+
+`git clone https://github.com/tmcdo1/auth-jwt-service.git`
+
+Install all the required packages:
+
+`npm install`
+
+Run for development purposes (uses `nodemon`):
+
+`npm start`
+
+Run for production purposes:
+
+`npm run prod`
+
+> This does not include database setup which is required to use. Follow the MongoDB installation manual: https://docs.mongodb.com/manual/installation/
+
+> If running without Docker, make sure to change the `DB_HOST` variable in the .env file to `localhost` or the server where your database is located.
+
+## Docker 
+A `Dockerfile` is provided for this service, as well as a `docker-compose.yml`. The Docker-Compose configuration includes a MongoDB container set to use `/data/db` as a volume.
+
+To run the service, start Docker on your machine. Then, just type `docker-compose up` and everything will be running properly.
+
+## Cookies
+If the `-c` or `--cookies` option is passed when running the service (add or remove from the start or prod script in the `package.json` file), a signed cookie will be set to store the user's token on the `/login` POST endpoint. The cookie will then be used to authenticate the user on the `/authenticate` POST endpoint.
+
+Ex: `node index.js -c`
+
+From your perspective, using cookies is an easy way to get started, as you will not have to write any code to store the token for the user.
