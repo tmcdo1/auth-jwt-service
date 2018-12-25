@@ -65,7 +65,7 @@ function checkHoneyPot (req, res, next) {
 
 /** **   API uses   ****/
 // Authenticates and returns token
-app.post('/login', async (req, res) => {
+app.post('/login', checkHoneyPot, async (req, res) => {
   if (!req.body.email || !req.body.password || req.body.email == null || req.body.password == null) {
     return res.status(401).json({ message: 'missing parameters' })
   }
