@@ -16,7 +16,7 @@ NOTE: Passwords are hashed using bcrypt
 - Allow for interchangeable databases with just specifying an environment variable (currently only MongoDB will be supported out of the box)
 - Add more security features to prevent against spamming (brute-force) and DOS attacks
 - Verify email
-- Flags for using sessions, cookies, and bearer tokens
+- Flags for using sessions and bearer tokens
 
 ## API 
 
@@ -88,6 +88,15 @@ Returns: application/json
 - `message`: String (`ok` if everything went alright)
 - `error`: (only included when error occurred)
 
+### /logout - POST - performs the logout
+Currently, logout only deletes the cookie with the token, if cookies are enabled.
+
+Accepts: application/x-www-form-urlencoded, application/json
+- `jwtToken`: String (the token received from /login) - not needed if cookies enabled
+
+Returns: application/json
+- `message`: String
+
 ### /delete-account - DELETE - deletes user account
 Accepts: application/x-www-form-urlencoded, application/json
 - `jwtToken`: String (the token received from /login)
@@ -96,6 +105,18 @@ Accepts: application/x-www-form-urlencoded, application/json
 Returns: application/json
 - `message`: String
 - `error`: (only included when error occurred)
+
+### /register - GET
+Returns HTML registration page
+
+### /login - GET
+Returns HTML login page
+
+### /forgot - GET
+Returns HTML forgot password page
+
+### /reset/:token - GET
+Returns HTML password reset page
 
 
 ## Customization/Configuration
@@ -122,7 +143,7 @@ Currently, the email information is only used for password reset related functio
     EMAIL_PASS='password' # password for the account mentioned above
 
     # Database
-    DB_HOST='mongo'
+    DB_HOST='localhost'
     DB_PORT=27017
     DB_NAME='JWTService'
 

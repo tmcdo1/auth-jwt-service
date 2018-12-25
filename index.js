@@ -21,8 +21,6 @@ program
   .option('-s, --sessions', 'Use stored user sessions')
   .parse(process.argv);
 
-
-console.log('DB_HOST:', process.env.DB_HOST)
 // Determine which extraction method to use
 var jwtStrategy = createStrategy()
 if(program.cookies) {
@@ -140,6 +138,13 @@ app.post('/reset/:token', checkHoneyPot, async (req, res) => {
   let err = await resetPassword(req.params.token, req.body.password)
   if (err) {
     return res.json({ message: 'failed to reset password', error: err })
+  }
+  res.json({ message: 'ok' })
+})
+
+app.post('/logout', authenticate, (req, res) => {
+  if(program.cookies && req.signedCookies.user) {
+    res.clearCookie('user', cookieOptions)
   }
   res.json({ message: 'ok' })
 })
